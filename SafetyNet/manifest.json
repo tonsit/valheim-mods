@@ -1,0 +1,9 @@
+{
+    "name": "SafetyNet",
+    "version_number": "0.0.1",
+    "website_url": "https://github.com/tonsit/valheim-mods",
+    "description": "Prevent fall damage and swim damage by default, with more available in config",
+    "dependencies": [
+        "denikson-BepInExPack_Valheim-5.4.600"
+    ]
+}

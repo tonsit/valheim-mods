@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glutton", "Glutton\Glutton.csproj", "{2AADA4F0-BFE9-48B1-B407-D295B0491F9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SafetyNet", "SafetyNet\SafetyNet.csproj", "{6CE605D9-5443-46CC-AA75-AC6498A37DEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2AADA4F0-BFE9-48B1-B407-D295B0491F9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AADA4F0-BFE9-48B1-B407-D295B0491F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AADA4F0-BFE9-48B1-B407-D295B0491F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AADA4F0-BFE9-48B1-B407-D295B0491F9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CE605D9-5443-46CC-AA75-AC6498A37DEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CE605D9-5443-46CC-AA75-AC6498A37DEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CE605D9-5443-46CC-AA75-AC6498A37DEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CE605D9-5443-46CC-AA75-AC6498A37DEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2594012C-66E9-415A-BAA2-788ADF361BCB}
+	EndGlobalSection
+EndGlobal
