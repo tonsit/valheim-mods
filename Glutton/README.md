@@ -1,11 +1,11 @@
 # Glutton Plugin for Valheim
-Automatically consume the same food when the remaining duration falls under a specified threshhold. Optionally reapplies the food buff without consuming an item.
+Automatically consume the same food when the remaining duration falls under a specified threshhold. Includes an option to prevent the item from being removed from inventory.
 
-The threshhold is expressed as a whole number representing a percentage of the overall duration of the food.
+The threshhold to trigger food consumption is expressed as a whole number representing a percentage of the overall duration of the food.
 
 The default is 50 which is when the icon begins to flash.
 
-The amount of stamina and health provided by food is tied to its duration. Consuming food at 50 will give you the maximum effects of food while consuming food relatively quick.
+The amount of stamina and health provided by food is tied to its remaining duration. Consuming food at 50% of its duration will give you the maximum effects of food while consuming food relatively quick.
 
 Lower this setting to conserve food.
 
