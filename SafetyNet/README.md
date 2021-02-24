@@ -13,6 +13,12 @@ Configuration allows for additional prevention of fire (burning), smoked and fre
 
 *Disclaimer: I take no responsibility for sudden deaths that may occur during the use of this plugin.*
 
+## Installation
+
+1. Download and install BepInEx Valheim
+2. Download this mod and move the `Glutton.dll` into `<GameLocation>\BepInEx\plugins`
+3. Launching the game will generate a config file at `<GameLocation>\BepInEx\config`
+
 ## Configuration
 ```
 [SafetyNet]

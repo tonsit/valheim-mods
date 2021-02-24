@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SafetyNet")]
+[assembly: AssemblyTitle("InteractWhileBuilding")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SafetyNet")]
+[assembly: AssemblyProduct("InteractWhileBuilding")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6ce605d9-5443-46cc-aa75-ac6498a37dea")]
+[assembly: Guid("a944cdd1-df39-46d3-b2c9-09b1ceb24d7e")]
 
 // Version information for an assembly consists of the following four values:
 //

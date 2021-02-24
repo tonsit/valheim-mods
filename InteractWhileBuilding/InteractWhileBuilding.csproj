@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6CE605D9-5443-46CC-AA75-AC6498A37DEA}</ProjectGuid>
+    <ProjectGuid>{A944CDD1-DF39-46D3-B2C9-09B1CEB24D7E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SafetyNet</RootNamespace>
-    <AssemblyName>SafetyNet</AssemblyName>
+    <RootNamespace>InteractWhileBuilding</RootNamespace>
+    <AssemblyName>InteractWhileBuilding</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -35,8 +35,8 @@
       <HintPath>..\Libs\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="assembly_valheim_publicized">
-      <HintPath>D:\Steam\steamapps\common\Valheim\valheim_Data\Managed\publicized_assemblies\assembly_valheim_publicized.dll</HintPath>
+    <Reference Include="assembly_valheim">
+      <HintPath>..\Libs\assembly_valheim.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="BepInEx">
@@ -65,7 +65,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SafetyNet.cs" />
+    <Compile Include="InteractWhileBuilding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

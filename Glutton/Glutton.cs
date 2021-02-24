@@ -17,7 +17,7 @@ namespace Glutton
 
         const string NAME = "Glutton";
 
-        const string VERSION = "0.0.2";
+        const string VERSION = "0.0.3";
 
         void Awake()
         {

@@ -13,6 +13,12 @@ The original version had a bug where the food would not be removed from your inv
 
 To restore the behavior, set RemoveItemConsumedFromInventory = false
 
+## Installation
+
+1. Download and install BepInEx Valheim
+2. Download this mod and move the `Glutton.dll` into `<GameLocation>\BepInEx\plugins`
+3. Launching the game will generate a config file at `<GameLocation>\BepInEx\config`
+
 ## Configuration
 ```
 [Glutton]
