@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
-using UnityEngine;
 using BepInEx.Logging;
-using System.Reflection;
 
 namespace Glutton
 {
