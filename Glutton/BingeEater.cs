@@ -1,23 +1,21 @@
-﻿using BepInEx;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
 
 
 namespace Glutton
 {
     [HarmonyPatch]
-    class ModifyFoodsCount
+    class BingeEater
     {
         private static MethodInfo GetCount = AccessTools.Method(typeof(List<Player.Food>), "get_Count");
 
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(Player), "EatFood")]
-        static IEnumerable<CodeInstruction> PatchEatFood(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> PatchEatFoodMore(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> il = instructions.ToList();
             for (int i = 2; i < il.Count; ++i)
@@ -30,15 +28,16 @@ namespace Glutton
                     && il[i].opcode == OpCodes.Bge)
                 {
                     il[i - 1] = new CodeInstruction(OpCodes.Ldc_I4, GetConfigMaximumFoodCount());
-                    Log("Modified EatFood");
+                    Log("Modified EatFood -- Binge");
                 }
             }
 
             return il.AsEnumerable();            
         }
+
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(Player), "CanEat")]
-        static IEnumerable<CodeInstruction> PatchCanEat(IEnumerable<CodeInstruction> instructions)
+        static IEnumerable<CodeInstruction> PatchCanEatMore(IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> il = instructions.ToList();
             for (int i = 2; i < il.Count; ++i)
@@ -47,11 +46,11 @@ namespace Glutton
                 // IL_00d4: ldc.i4.3
                 // IL_00d5: blt.s IL_00e7
                 if (il[i - 2].Calls(GetCount)
-                    && (il[i - 1].opcode == OpCodes.Ldc_I4_3)
+                    && il[i - 1].opcode == OpCodes.Ldc_I4_3
                     && il[i].opcode == OpCodes.Blt)
                 {
                     il[i - 1] = new CodeInstruction(OpCodes.Ldc_I4, GetConfigMaximumFoodCount());
-                    Log("Modified CanEat");
+                    Log("Modified CanEat -- Binge");
                 }
             }
 

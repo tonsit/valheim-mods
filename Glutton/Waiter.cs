@@ -74,7 +74,11 @@ namespace Glutton
 
         static ItemDrop.ItemData GetBestFood(Inventory inventory, List<ItemDrop.ItemData> foodItems)
         {
-            if (GetConfigIgnoreInventory())
+
+            if (GetConfigAllowDoubleDip()) {
+                foodItems = new List<ItemDrop.ItemData>();
+              }
+                if (GetConfigIgnoreInventory())
             {
                 return GetBestFoodInGameExcept(foodItems);
             }
@@ -154,6 +158,11 @@ namespace Glutton
         private static bool GetConfigConsumeMaximumFoods()
         {
             return Glutton.GetConfigConsumeMaximumFoods();
+        }
+
+        public static bool GetConfigAllowDoubleDip()
+        {
+            return Glutton.GetConfigAllowDoubleDip();
         }
     }
 }

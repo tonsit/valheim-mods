@@ -79,7 +79,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ModifyFoodsCount.cs" />
+    <Compile Include="BingeEater.cs" />
     <Compile Include="Kitchen.cs" />
     <Compile Include="Waiter.cs" />
     <Compile Include="Masticator.cs" />
