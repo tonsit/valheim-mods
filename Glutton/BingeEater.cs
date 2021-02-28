@@ -57,6 +57,32 @@ namespace Glutton
             return il.AsEnumerable();
         }
 
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(Player), "EatFood")]
+        static IEnumerable<CodeInstruction> PatchEatFoodDoubleDip(IEnumerable<CodeInstruction> instructions)
+        {
+            List<CodeInstruction> il = instructions.ToList();
+            for (int i = 2; i < il.Count; ++i)
+            {
+
+                // IL_0081: ldc.i4.0
+                // IL_0082: stloc.3
+                // foreach (Food food2 in m_foods)
+                // IL_0083: leave IL_0157
+                if (il[i - 2].opcode == OpCodes.Ldc_I4_0
+                && il[i - 1].opcode == OpCodes.Stloc_3
+                && il[i].opcode == OpCodes.Leave)
+                {
+                    //il[i] = new CodeInstruction(OpCodes.Nop);
+                    //il[i - 1] = new CodeInstruction(OpCodes.Nop);
+                    il[i - 2] = new CodeInstruction(OpCodes.Ldc_I4_1);
+                    Log("Modified EatFood -- Double Dipping");
+                }
+            }
+
+            return il.AsEnumerable();
+        }
+
         public static int GetConfigMaximumFoodCount()
         {
             return Glutton.GetConfigMaximumFoodCount();
