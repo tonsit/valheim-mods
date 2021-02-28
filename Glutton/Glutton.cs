@@ -10,6 +10,9 @@ namespace Glutton
     {
         private static ConfigEntry<uint> percentageRemainingConfig;
         private static ConfigEntry<bool> removeInventoryConfig;
+        private static ConfigEntry<bool> ignoreInventoryConfig;
+        private static ConfigEntry<bool> consumeMaximumFoods;
+        private static ConfigEntry<int> maximumFoodCount;
 
         private static ManualLogSource logger;
 
@@ -17,17 +20,21 @@ namespace Glutton
 
         const string NAME = "Glutton";
 
-        const string VERSION = "0.0.3";
+        const string VERSION = "0.1.0";
 
         void Awake()
         {
-
-            percentageRemainingConfig = Config.Bind("Glutton", "FoodDurationRemainingPercent", (uint) 50,
+            percentageRemainingConfig = Config.Bind(NAME, "FoodDurationRemainingPercent", (uint) 50,
                 "The percentage of the food duration at which to attempt to consume the same food. Range: 1-50");
-            removeInventoryConfig = Config.Bind("Glutton", "RemoveItemConsumedFromInventory", true,
-                "Whether the food consumed by Glutton should reduce the stack count in your inventory.");
+            consumeMaximumFoods = Config.Bind(NAME, "Consume Maximum Foods", true,
+                "Whether Glutton should try to keep maximum food buffs applied.");
+            maximumFoodCount = Config.Bind(NAME, "MaximumFoodCount", 5,
+                "How many foods can be active at one time?");
+            ignoreInventoryConfig = Config.Bind(NAME, "IgnoreInventory", false,
+                "Whether Glutton should consume the best food available in the game regardless of your inventory.");
+            removeInventoryConfig = Config.Bind(NAME, "RemoveItemConsumedFromInventory", true,
+                "Whether Glutton should reduce the stack count in your inventory when consuming food. IgnoreInventory overrides this setting to false.");
             logger = Logger;
-            Log("Glutton loaded.");
 
             var harmony = new Harmony("mod.glutton");
             harmony.PatchAll();
@@ -45,7 +52,26 @@ namespace Glutton
 
         public static bool GetConfigRemoveInventory()
         {
-            return removeInventoryConfig.Value;
+            if (GetConfigIgnoreInventory() || ! removeInventoryConfig.Value)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public static bool GetConfigIgnoreInventory()
+        {
+            return ignoreInventoryConfig.Value;
+        }
+
+        public static bool GetConfigConsumeMaximumFoods()
+        {
+            return consumeMaximumFoods.Value;
+        }
+
+        public static int GetConfigMaximumFoodCount()
+        {
+            return maximumFoodCount.Value;
         }
     }
 }

@@ -1,71 +1,65 @@
 ﻿using HarmonyLib;
+using UnityEngine;
+using BepInEx.Logging;
+using System.Reflection;
 
 namespace Glutton
 {
     [HarmonyPatch(typeof(Player), "UpdateFood")]
     class Masticator
     {
-        static void Prefix(Player __instance)
+
+        public static bool TryToEatMore(Player player, ItemDrop.ItemData food)
         {
-            foreach (Player.Food food in __instance.GetFoods())
+            if (HasFoodInInventory(player.GetInventory(), food))
             {
-                if (FoodPercentageBelowThreshhold(food))
-                {
-                    TryToEatMore(__instance, food);
-                }
-            }
-        }
-
-        static ItemDrop.ItemData GetInventoryItem(Player player, Player.Food food)
-        {
-            return player.GetInventory().GetItem(food.m_item.m_shared.m_name);
-        }
-
-    private static bool FoodPercentageBelowThreshhold(Player.Food food)
-        {
-            
-            return GetFoodPercentage(food) < GetConfigPercentage();
-        }
-
-        private static float GetFoodPercentage(Player.Food food)
-        {
-            return 100 * food.m_health / food.m_item.m_shared.m_food;
-        }
-
-        private static bool TryToEatMore(Player player, Player.Food food)
-        {
-            if (HasFoodInInventory(player, food))
-            {
-                Log($"Consuming {food.m_name}");
+                Log($"Chewing: {food.m_dropPrefab.name}", LogLevel.Debug);
                 return Chew(player, food);
             }
+            Log("No food in inventory", LogLevel.Debug);
             return false;
         }
 
-        // Glutton.Masticator
-        private static bool HasFoodInInventory(Player player, Player.Food food)
+        static ItemDrop.ItemData GetInventoryItem(Player player, ItemDrop.ItemData food)
         {
-            return player.GetInventory().HaveItem(food.m_item.m_shared.m_name);
+            return player.GetInventory().GetItem(food.m_shared.m_name);
         }
 
-        // Glutton.Masticator
-        private static bool Chew(Player player, Player.Food food)
+        private static bool HasFoodInInventory(Inventory inventory, ItemDrop.ItemData food)
+        {
+            return GetConfigIgnoreInventory() || inventory.HaveItem(food.m_shared.m_name);
+        }
+
+          private static bool Chew(Player player, ItemDrop.ItemData food)
         {
             if (GetConfigRemoveInventory()) {
-                player.UseItem(player.GetInventory(), GetInventoryItem(player, food), true);
-                return true;
+                return ConsumeFromInventory(player, food);
             }
-            return player.ConsumeItem(player.GetInventory(), food.m_item);
+            return ConsumeFromKitchen(player, food);
         }
 
-        private static void Log(object data)
+        private static bool ConsumeFromInventory(Player player, ItemDrop.ItemData food)
         {
-            Glutton.Log(data);
+            //Localization.instance.Localize(food.m_shared.m_name);
+            Log($"Consuming from inventory {food.m_shared.m_name}");
+            player.UseItem(player.GetInventory(), GetInventoryItem(player, food), true);
+            return true;
         }
 
-        private static uint GetConfigPercentage()
+        static bool ConsumeFromKitchen(Player player, ItemDrop.ItemData food)
         {
-            return Glutton.GetConfigPercentage();
+            Log($"Consuming from kitchen {food.m_dropPrefab.name}", LogLevel.Debug);
+            Log($"Consumable: {player.CanConsumeItem(food)}", LogLevel.Debug);
+            Log($"ConsumeStatusEffect: {food.m_shared.m_consumeStatusEffect}", LogLevel.Debug);
+            Log($"m_shared.m_food: {food.m_shared.m_food}", LogLevel.Debug);
+            player.EatFood(food);
+            Log($"Food Count: {player.GetFoods().Count}");
+            return true;
+        }
+
+        private static void Log(object data, LogLevel level = LogLevel.Info)
+        {
+            Glutton.Log(data, level);
         }
 
         private static bool GetConfigRemoveInventory()
@@ -73,5 +67,9 @@ namespace Glutton
             return Glutton.GetConfigRemoveInventory();
         }
 
+        private static bool GetConfigIgnoreInventory()
+        {
+            return Glutton.GetConfigIgnoreInventory();
+        }
     }
 }

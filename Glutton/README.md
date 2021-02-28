@@ -1,16 +1,23 @@
 # Glutton Plugin for Valheim
-Automatically consume the same food when the remaining duration falls under a specified threshhold. Includes an option to prevent the item from being removed from inventory.
+Manage your food!
+Automatically eat the best food you have in your inventory.
+Option to ignore inventory requirements completely
+
+Features that may be configured:
+*Consume the same food when the remaining duration falls under a specified threshhold
+*Consume until 3 food buffs are applied based on available inventory
+*Prevent the food from being removed from inventory
+*Completely ignore inventory requirements to consume the best food in game
+
 
 The threshhold to trigger food consumption is expressed as a whole number representing a percentage of the overall duration of the food.
-
-The default is 50 which is when the icon begins to flash.
+The defaul is 50 which is when the icon begins to flash.
 
 The amount of stamina and health provided by food is tied to its remaining duration. Consuming food at 50% of its duration will give you the maximum effects of food while consuming food relatively quick.
-
 Lower this setting to conserve food.
 
-The original version had a bug where the food would not be removed from your inventory. This has been turned into a feature.
 
+The original version had a bug where the food would not be removed from your inventory. This has been turned into a feature.
 To restore the behavior, set RemoveItemConsumedFromInventory = false
 
 ## Installation
@@ -33,3 +40,17 @@ FoodDurationRemainingPercent = 50
 # Default value: true
 RemoveItemConsumedFromInventory = true
 ```
+
+## Changelog
+- v0.1.0
+	- Add throttling to UpdateFood patch to improve performance
+	- Add option to consume best food choice from inventory automatically
+	- Add option to try and keep 3 food buffs active based on available inventory
+	- Add option to ignore inventory when consuming food
+- v0.0.3
+	- Add toggle to remove the consumed item from stack count
+- v0.0.2
+	- Update readme
+- v0.0.1
+	- initial release
+

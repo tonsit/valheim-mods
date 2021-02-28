@@ -41,6 +41,9 @@ namespace InteractWhileBuilding
             List<CodeInstruction> il = instructions.ToList();
             for (int i = 0; i < il.Count; ++i)
             {
+                // IL_0000: ldarg.0
+                // IL_0001: callvirt instance bool Character::InPlaceMode()
+                // IL_0006: brtrue.s IL_001e
                 if (il[i].Calls(InPlaceMode))
                 {
                     il[i - 1].opcode = OpCodes.Nop;
