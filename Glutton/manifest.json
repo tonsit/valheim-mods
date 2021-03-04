@@ -1,8 +1,8 @@
 {
     "name": "Glutton",
-    "version_number": "0.0.2",
+    "version_number": "1.0.0",
     "website_url": "https://github.com/tonsit/valheim-mods",
-    "description": "Eat the same food automatically",
+    "description": "Automate your food. Modify buff count, duration, intensity and more",
     "dependencies": [
         "denikson-BepInExPack_Valheim-5.4.600"
     ]

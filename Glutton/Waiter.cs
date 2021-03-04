@@ -2,24 +2,33 @@
 using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
+using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Glutton
 {
-    [HarmonyPatch(typeof(Player), "UpdateFood")]
+    [HarmonyPatch]
     class Waiter
     {
         public static float m_foodRefreshTimer { get; private set; }
         public static Player.Food[] foods { get; private set; }
 
-        static void Prefix(Player __instance, float dt)
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Player), "UpdateFood")]
+        static void Begin(Player __instance, float dt)
         {
             m_foodRefreshTimer += dt;
-            if (!(m_foodRefreshTimer > 1f))
+            if (!(m_foodRefreshTimer > 1f) || AutomaticEatingIsDisabled())
             {
                 return;
             }
             m_foodRefreshTimer = 0f;
             CheckFoodOnPlayer(__instance);
+        }
+
+        static bool AutomaticEatingIsDisabled()
+        {
+            return !Glutton.GetAutomaticEatingSwitch();
         }
 
         static void CheckFoodOnPlayer(Player player)
@@ -30,16 +39,16 @@ namespace Glutton
 
         static void MaybeEatMoreFoods(Player player)
         {
-            if (GetConfigConsumeMaximumFoods()
+            if (GetConfigEatMaximumFoods()
                 && player.GetFoods().Count < GetConfigMaximumFoodCount())
             {
                 try
                 {
                     List<Player.Food> foods = player.GetFoods();
                     List<ItemDrop.ItemData> foodItems = ConvertFoodToItems(foods);
-                    ItemDrop.ItemData bestFood = GetBestFood(player.GetInventory(), foodItems);
-                    Log($"Trying to serve more: {bestFood.m_shared.m_name}");
-                    TryToServeMore(player, bestFood);
+                    ItemDrop.ItemData food = GetFood(player.GetInventory(), foodItems);
+                    Log($"Trying to serve more: {food.m_shared.m_name}");
+                    TryToServeMore(player, food);
                 }
                 catch (NullReferenceException)
                 {
@@ -52,6 +61,7 @@ namespace Glutton
         static void RefreshActiveFood(Player player)
         {
             player.GetFoods().ForEach(food => {
+                Log($"Active food hp//sta: {food.m_name} :: {food.m_health} // {food.m_stamina} :: player hp//sta :: {player.GetHealth()} // {player.GetStamina()}", LogLevel.Debug);
                 if (FoodPercentageBelowThreshhold(food))
                 {
 
@@ -66,22 +76,33 @@ namespace Glutton
                     }
                         );
                     List<ItemDrop.ItemData> foodItems = ConvertFoodToItems(foods);
-                    ItemDrop.ItemData item = GetBestFood(player.GetInventory(), foodItems);
-                    TryToServeMore(player, item);
+                    ItemDrop.ItemData item = 
+                        GetConfigEatMaximumFoods()
+                        ? GetFood(player.GetInventory(), foodItems)
+                        : food.m_item;
+                    try
+                    {
+                        TryToServeMore(player, item);
+                    }
+                    catch (NullReferenceException)
+                    {
+                        // Player has no best food.
+                        Log($"NullReferenceException caught", LogLevel.Debug);
+                    }
                 }
             });
         }
 
-        static ItemDrop.ItemData GetBestFood(Inventory inventory, List<ItemDrop.ItemData> foodItems)
+        static ItemDrop.ItemData GetFood(Inventory inventory, List<ItemDrop.ItemData> foodItems)
         {
             if (GetConfigIgnoreInventory())
             {
-                return GetBestFoodInGameExcept(foodItems);
+                return GetFoodFromKitchenExcept(foodItems);
             }
-            return GetBestFoodFromInventoryExcept(inventory, foodItems);
+            return GetFoodFromInventoryExcept(inventory, foodItems);
         }
 
-        static ItemDrop.ItemData GetBestFoodFromInventoryExcept(Inventory inventory, List<ItemDrop.ItemData> foodItems)
+        static ItemDrop.ItemData GetFoodFromInventoryExcept(Inventory inventory, List<ItemDrop.ItemData> foodItems)
         {
             List<ItemDrop.ItemData> items = new List<ItemDrop.ItemData>();
             Log($"Get best food from inventory except: {items.Count}", LogLevel.Debug);
@@ -91,16 +112,16 @@ namespace Glutton
             {
                 Log(item.m_shared.m_name, LogLevel.Debug);
             }
-            return Kitchen.GetBestFoodFromInventoryExcept(items, foodItems);
+            return Kitchen.GetFoodFromInventoryExcept(items, foodItems);
         }
 
-        static ItemDrop.ItemData GetBestFoodInGameExcept(List<ItemDrop.ItemData> foodItems)
+        static ItemDrop.ItemData GetFoodFromKitchenExcept(List<ItemDrop.ItemData> foodItems)
         {
             Log($"Get best food in game except: {foodItems.Count}", LogLevel.Debug);
             foodItems.ForEach(item => {
-                Log($"{item.m_shared.m_name}");
+                Log($"{item.m_shared.m_name}", LogLevel.Debug);
             });
-            return Kitchen.GetBestFoodInGameExcept(foodItems);
+            return Kitchen.GetFoodFromKitchenExcept(foodItems);
         }
 
         static List<ItemDrop.ItemData> ConvertFoodToItems(List<Player.Food> foods)
@@ -113,47 +134,149 @@ namespace Glutton
             return items;
         }
 
-        private static bool FoodPercentageBelowThreshhold(Player.Food food)
+        static bool FoodPercentageBelowThreshhold(Player.Food food)
         {
             
             return GetFoodPercentage(food) < GetConfigPercentage();
         }
 
-        private static float GetFoodPercentage(Player.Food food)
+        static float GetFoodPercentage(Player.Food food)
         {
             return 100 * food.m_health / food.m_item.m_shared.m_food;
         }
 
-        private static bool TryToServeMore(Player player, ItemDrop.ItemData food)
+        static bool TryToServeMore(Player player, ItemDrop.ItemData food)
         {
             Log($"Serving {food.m_dropPrefab.name}", LogLevel.Debug);
             return Masticator.TryToEatMore(player, food);
         }
 
-      
-        private static void Log(object data, LogLevel level = LogLevel.Info)
+        static void Log(object data, LogLevel level = LogLevel.Info)
         {
             Glutton.Log(data, level);
         }
 
-        private static uint GetConfigPercentage()
+        static uint GetConfigPercentage()
         {
             return Glutton.GetConfigPercentage();
         }
 
-        private static bool GetConfigIgnoreInventory()
+        static bool GetConfigIgnoreInventory()
         {
             return Glutton.GetConfigIgnoreInventory();
         }
 
-        private static int GetConfigMaximumFoodCount()
+        static uint GetConfigMaximumFoodCount()
         {
             return Glutton.GetConfigMaximumFoodCount();
         }
 
-        private static bool GetConfigConsumeMaximumFoods()
+        static bool GetConfigEatMaximumFoods()
         {
-            return Glutton.GetConfigConsumeMaximumFoods();
+            return Glutton.GetConfigEatMaximumFoods();
+        }
+
+    }
+    [HarmonyPatch]
+    class Normalizer
+    {
+        public static float m_foodRefreshTimer { get; private set; }
+        public static Player.Food[] foods { get; private set; }
+
+        static FieldInfo m_item = AccessTools.Field(typeof(Player.Food), "m_item");
+        static FieldInfo m_health = AccessTools.Field(typeof(Player.Food), "m_health");
+        static FieldInfo m_stamina = AccessTools.Field(typeof(Player.Food), "m_stamina");
+        static FieldInfo m_shared = AccessTools.Field(typeof(ItemDrop.ItemData), "m_shared");
+        static FieldInfo m_food = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), "m_food");
+        static FieldInfo m_foodStamina = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), "m_foodStamina");
+        static FieldInfo m_foodBurnTime = AccessTools.Field(typeof(ItemDrop.ItemData.SharedData), "m_foodBurnTime");
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(Player), "UpdateFood")]
+        static IEnumerable<CodeInstruction> AdjustFoodDuration(IEnumerable<CodeInstruction> instructions)
+        {
+            //   IL_006b: ldfld float32 ItemDrop/ItemData/SharedData::m_foodBurnTime
+            //   IL_0070: div
+            //++ float FoodDuration()
+            //++ mul
+            //   IL_0071: sub
+            //   IL_0072: stfld float32 Player / Food::m_health
+            return FoodDurationIsUnaltered() ? instructions : new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(i => i.LoadsField(m_foodBurnTime)),
+                    new CodeMatch(OpCodes.Div),
+                    new CodeMatch(OpCodes.Sub),
+                    new CodeMatch(i => i.StoresField(m_health) || i.StoresField(m_stamina)))
+                .Advance(2)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldc_R4, GetConfigFoodDurationMultiplier()),
+                    new CodeInstruction(OpCodes.Mul))
+                .Log($"Modified Player.UpdateFood -- Duration: {1 / GetConfigFoodDurationMultiplier() * 100}%")
+                .InstructionEnumeration();
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(Player), "GetTotalFoodValue")]
+        static IEnumerable<CodeInstruction> AdjustFoodBenefits(IEnumerable<CodeInstruction> instructions)
+        {
+
+            //   // hp += food.m_health;
+            //-- IL_0028: ldfld float32 Player/Food::m_health
+            //++ ldfld float32 PlayerFood::m_item.ItemData.ItemDrop.m_food
+            //++ float food_health_multiplier
+            //++ mul
+            //   IL_002d: add
+            //   IL_002e: stind.r4
+            //   //stamina += food.m_stamina;
+            //-- IL_0033: ldfld float32 Player/Food::m_stamina
+            //++ ldfld float32 PlayerFood::m_item.ItemData.ItemDrop.m_foodStamina
+            //++ float food_health_multiplier
+            //++ mul
+            //   IL_0038: add
+            //   IL_0039: stind.r4
+            return FoodBenefitIsUnaltered() ? instructions : new CodeMatcher(instructions)
+                .MatchForward(false,
+                    new CodeMatch(i => i.LoadsField(m_health)))
+                .SetOperandAndAdvance(m_item)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldfld, m_shared),
+                    new CodeInstruction(OpCodes.Ldfld, m_food),
+                    new CodeInstruction(OpCodes.Ldc_R4, GetConfigFoodHealthMultiplier()),
+                    new CodeInstruction(OpCodes.Mul))
+                .MatchForward(false,
+                    new CodeMatch(i => i.LoadsField(m_stamina)))
+                .SetOperandAndAdvance(m_item)
+                .InsertAndAdvance(
+                    new CodeInstruction(OpCodes.Ldfld, m_shared),
+                    new CodeInstruction(OpCodes.Ldfld, m_foodStamina),
+                    new CodeInstruction(OpCodes.Ldc_R4, GetConfigFoodStaminaMultiplier()),
+                    new CodeInstruction(OpCodes.Mul))
+                .Log($"Modified Player.GetTotalFoodValue -- Normalized: {GetConfigFoodHealthMultiplier() * 100}% hp // {GetConfigFoodStaminaMultiplier() * 100}% stamina")
+                .InstructionEnumeration();
+        }
+
+        static bool FoodDurationIsUnaltered()
+        {
+            return GetConfigFoodDurationMultiplier() == 1;
+        }
+        static float GetConfigFoodDurationMultiplier()
+        {
+            return Glutton.GetConfigFoodDurationMultiplier();
+        }
+
+        static bool FoodBenefitIsUnaltered()
+        {
+            return !Glutton.GetConfigNormalizeFoodBenefit();
+        }
+
+        static float GetConfigFoodHealthMultiplier()
+        {
+            return Glutton.GetConfigFoodHealthMultiplier();
+        }
+
+        static float GetConfigFoodStaminaMultiplier()
+        {
+            return Glutton.GetConfigFoodStaminaMultiplier();
         }
     }
 }

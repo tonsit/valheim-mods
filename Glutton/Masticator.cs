@@ -1,11 +1,7 @@
-﻿using HarmonyLib;
-using UnityEngine;
-using BepInEx.Logging;
-using System.Reflection;
+﻿using BepInEx.Logging;
 
 namespace Glutton
 {
-    [HarmonyPatch(typeof(Player), "UpdateFood")]
     class Masticator
     {
 
@@ -25,12 +21,12 @@ namespace Glutton
             return player.GetInventory().GetItem(food.m_shared.m_name);
         }
 
-        private static bool HasFoodInInventory(Inventory inventory, ItemDrop.ItemData food)
+        static bool HasFoodInInventory(Inventory inventory, ItemDrop.ItemData food)
         {
             return GetConfigIgnoreInventory() || inventory.HaveItem(food.m_shared.m_name);
         }
 
-          private static bool Chew(Player player, ItemDrop.ItemData food)
+        static bool Chew(Player player, ItemDrop.ItemData food)
         {
             if (GetConfigRemoveInventory()) {
                 return ConsumeFromInventory(player, food);
@@ -38,10 +34,10 @@ namespace Glutton
             return ConsumeFromKitchen(player, food);
         }
 
-        private static bool ConsumeFromInventory(Player player, ItemDrop.ItemData food)
+        static bool ConsumeFromInventory(Player player, ItemDrop.ItemData food)
         {
             //Localization.instance.Localize(food.m_shared.m_name);
-            Log($"Consuming from inventory {food.m_shared.m_name}");
+            Log($"Consuming from inventory {food.m_dropPrefab.name}");
             player.UseItem(player.GetInventory(), GetInventoryItem(player, food), true);
             return true;
         }
@@ -49,25 +45,22 @@ namespace Glutton
         static bool ConsumeFromKitchen(Player player, ItemDrop.ItemData food)
         {
             Log($"Consuming from kitchen {food.m_dropPrefab.name}", LogLevel.Debug);
-            Log($"Consumable: {player.CanConsumeItem(food)}", LogLevel.Debug);
-            Log($"ConsumeStatusEffect: {food.m_shared.m_consumeStatusEffect}", LogLevel.Debug);
-            Log($"m_shared.m_food: {food.m_shared.m_food}", LogLevel.Debug);
             player.EatFood(food);
-            Log($"Food Count: {player.GetFoods().Count}");
+            Log($"Food Count: {player.GetFoods().Count}", LogLevel.Debug);
             return true;
         }
 
-        private static void Log(object data, LogLevel level = LogLevel.Info)
+        static void Log(object data, LogLevel level = LogLevel.Info)
         {
             Glutton.Log(data, level);
         }
 
-        private static bool GetConfigRemoveInventory()
+        static bool GetConfigRemoveInventory()
         {
             return Glutton.GetConfigRemoveInventory();
         }
 
-        private static bool GetConfigIgnoreInventory()
+        static bool GetConfigIgnoreInventory()
         {
             return Glutton.GetConfigIgnoreInventory();
         }

@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
 using BepInEx.Logging;
-using System.Linq;
 using System;
 using UnityEngine;
 
@@ -22,16 +21,43 @@ namespace Glutton
 
         int IComparable<ScoredFood>.CompareTo(ScoredFood food)
         {
-            return Comparer<float>.Default.Compare(food.score, score);
+            if (GetConfigEatBestFoodsFirst()) {
+                return Comparer<float>.Default.Compare(food.score, score);
+            }
+            return Comparer<float>.Default.Compare(score, food.score);
         }
 
         static float GetFitnessScore(ItemDrop.ItemData food)
         {
-            float score = food.m_shared.m_food * 50;
-            score += food.m_shared.m_foodBurnTime * 1;
-            score += food.m_shared.m_foodRegen * 500;
-            score += food.m_shared.m_foodStamina * 50;
-            return score;
+            return food.m_shared.m_food * GetConfigFoodHealthScoreWeight()
+             + food.m_shared.m_foodBurnTime * GetConfigFoodBurnTimeScoreWeight()
+             + food.m_shared.m_foodRegen * GetConfigFoodRegenScoreWeight()
+             + food.m_shared.m_foodStamina * GetConfigFoodStaminaScoreWeight();
+        }
+
+        static float GetConfigFoodHealthScoreWeight()
+        {
+            return Glutton.GetConfigFoodHealthScoreWeight();
+        }
+
+        static float GetConfigFoodBurnTimeScoreWeight()
+        {
+            return Glutton.GetConfigFoodBurnTimeScoreWeight();
+        }
+
+        static float GetConfigFoodRegenScoreWeight()
+        {
+            return Glutton.GetConfigFoodRegenScoreWeight();
+        }
+
+        static float GetConfigFoodStaminaScoreWeight()
+        {
+            return Glutton.GetConfigFoodStaminaScoreWeight();
+        }
+
+        static bool GetConfigEatBestFoodsFirst()
+        {
+            return Glutton.GetConfigEatBestFoodsFirst();
         }
     }
 
@@ -42,47 +68,20 @@ namespace Glutton
 
         static List<ScoredFood> sorted;
 
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(ObjectDB), "Awake")]
-        static List<ScoredFood> GetAllFoods()
-        {
-            all = ObjectDB.instance.GetAllItems(ItemDrop.ItemData.ItemType.Consumable, "");
-            sorted = new List<ScoredFood>();
-            foreach (ItemDrop item in all)
-            {
-                if (item.m_itemData.m_shared.m_food > 0)
-                {
-                    string prefabName = item.GetPrefabName(item.gameObject.name);
-                    GameObject itemPrefab = ObjectDB.instance.GetItemPrefab(prefabName);
-                    item.m_itemData.m_dropPrefab = itemPrefab;
-                    Log($"Adding: {item.m_itemData.m_dropPrefab.name}", LogLevel.Debug);
-                    sorted.Add(GetScoredFood(item.m_itemData));
-                }
-            }
-            sorted.Sort();
-            return sorted;
-        }
-
-        public static ItemDrop.ItemData GetBestFoodInGameExcept(List<ItemDrop.ItemData> activeFoodItems = default)
+        public static ItemDrop.ItemData GetFoodFromKitchenExcept(List<ItemDrop.ItemData> activeFoodItems = default)
         {
             List<ScoredFood> activeFoods = ConvertItemsToScoredFood(activeFoodItems);
             List<ScoredFood> kitchenFoods = GetAllFoods();
             List<ScoredFood> sort = Remove(kitchenFoods, activeFoods);
             sort.Sort();
-            return sort[0].food;
-        }
-
-        static List<ScoredFood> ConvertItemsToScoredFood(List<ItemDrop.ItemData> items)
-        {
-            List<ScoredFood> scored = new List<ScoredFood>();
-            foreach (ItemDrop.ItemData item in items)
+            if (sort.Count > 0)
             {
-                scored.Add(new ScoredFood(item));
+                return sort[0].food;
             }
-            return scored;
+            return null;
         }
 
-        public static ItemDrop.ItemData GetBestFoodFromInventoryExcept(List<ItemDrop.ItemData> inventoryItems, List<ItemDrop.ItemData> activeFoodItems)
+        public static ItemDrop.ItemData GetFoodFromInventoryExcept(List<ItemDrop.ItemData> inventoryItems, List<ItemDrop.ItemData> activeFoodItems)
         {
 
             if (inventoryItems == default(List<ItemDrop.ItemData>))
@@ -100,7 +99,41 @@ namespace Glutton
             return null;
         }
 
+        static List<ScoredFood> GetAllFoods()
+        {
+            all = ObjectDB.instance.GetAllItems(ItemDrop.ItemData.ItemType.Consumable, "");
+            sorted = new List<ScoredFood>();
+            foreach (ItemDrop item in all)
+            {
+                if (item.m_itemData.m_shared.m_food > 0)
+                {
+                    item.m_itemData.m_dropPrefab = GenerateItemPrefab(item);
+                    Log($"Adding: {item.m_itemData.m_dropPrefab.name}", LogLevel.Debug);
+                    sorted.Add(GetScoredFood(item.m_itemData));
+                }
+            }
+            sorted.Sort();
+            return sorted;
+        }
 
+        // The item prefab is added by various methods when items are created in the game.
+        // The item's prefab name is used when consuming food.
+        // An error will be thrown when prefab is null.
+        static GameObject GenerateItemPrefab(ItemDrop item)
+        {
+            string prefabName = item.GetPrefabName(item.gameObject.name);
+            return ObjectDB.instance.GetItemPrefab(prefabName);
+        }
+
+        static List<ScoredFood> ConvertItemsToScoredFood(List<ItemDrop.ItemData> items)
+        {
+            List<ScoredFood> scored = new List<ScoredFood>();
+            foreach (ItemDrop.ItemData item in items)
+            {
+                scored.Add(new ScoredFood(item));
+            }
+            return scored;
+        }
 
         static List<ScoredFood> Remove(List<ScoredFood> inventory, List<ScoredFood> activeFoods)
         {
@@ -130,7 +163,7 @@ namespace Glutton
             return new ScoredFood(food);
         }
 
-        private static void Log(object data, LogLevel level = LogLevel.Info)
+        static void Log(object data, LogLevel level = LogLevel.Info)
         {
             Glutton.Log(data, level);
         }
