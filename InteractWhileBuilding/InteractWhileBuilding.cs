@@ -8,8 +8,6 @@ using System.Reflection.Emit;
 using UnityEngine;
 using BepInEx.Configuration;
 
-
-
 namespace InteractWhileBuilding
 {
     [HarmonyPatch]
