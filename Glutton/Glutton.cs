@@ -31,7 +31,7 @@ namespace Glutton
 
         const string GUID = "org.tonsit.glutton";
         const string NAME = "Glutton";
-        const string VERSION = "1.0.0";
+        const string VERSION = "1.0.1";
         enum DurationTypes
         {
             Infinite,
@@ -140,10 +140,25 @@ namespace Glutton
         [HarmonyPatch(typeof(Player), "Update")]
         static void CheckForKeyStrokes(Player __instance) 
         {
+            if (ShouldIgnoreKeyboardInput(__instance))
+            {
+                return;
+            }
+
             if (automaticEating.Value.IsDown())
             {
                 ToggleAutomaticEatingSwitch(__instance);
             }
+        }
+
+        static bool ShouldIgnoreKeyboardInput(Player __instance)
+        {
+            return ((Player.m_localPlayer != __instance)
+                || Console.IsVisible()
+                || TextInput.IsVisible()
+                || Minimap.InTextInput()
+                || Menu.IsVisible()
+                || (Chat.instance != null && Chat.instance.IsChatDialogWindowVisible()));
         }
 
         public static void Log(object data, LogLevel level = LogLevel.Info)

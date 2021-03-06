@@ -6,7 +6,7 @@ With the default settings, Glutton will eat the best food you have available in 
 There are many options available to customize how Glutton behaves.
 
 ## Features
-* Eat the same food when the remaining duration falls under a specified threshhold
+* Eat the same food when the remaining duration falls under a specified threshold
 * Eat until maximum food buffs are applied based on available inventory
 * Toggle auto eating on or off with customizable keyboard shortcut
 * Auto eat best or worst food as priority
@@ -26,6 +26,9 @@ Toggle Automatic Eating: LeftShift + T
 
 ## Configuration
 Configuration may be done in game using: https://github.com/BepInEx/BepInEx.ConfigurationManager
+
+Make sure your inventory is open before opening ConfigurationManager to display tooltips on options when you mouse over them.
+
 You may also edit the config file manually.
 
 **PLEASE NOTE:**
@@ -89,7 +92,7 @@ Ignore Inventory = false
 # Setting type: DurationTypes
 # Default value: Normal
 # Acceptable values: Infinite, Longer, Long, Normal, Short, Shorter
-**Food Duration = Infinite
+**Food Duration = Normal
 
 ## Should eating an item reduce the stack count in your inventory? IgnoreInventory overrides this to false.
 # Setting type: Boolean
@@ -158,6 +161,10 @@ Ignore Inventory = true
 ```
 
 ## Changelog
+- v1.0.1
+	- Fixed a bug where pots where consumed from inventory
+	- Fixed a bug where the keyboard shortcut was spamming other players in multiplayer
+    - Prevent hotkey from triggering while various text boxes are open
 - v1.0.0
 	- Add keyboard shortcut to toggle mod behavior
 	- Adjust Config for better BepInEx Configuration Manager support.
