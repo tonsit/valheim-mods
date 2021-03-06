@@ -26,6 +26,9 @@ Toggle Automatic Eating: LeftShift + T
 
 ## Configuration
 Configuration may be done in game using: https://github.com/BepInEx/BepInEx.ConfigurationManager
+
+Make sure your inventory is open before opening ConfigurationManager to show tooltips on options.
+
 You may also edit the config file manually.
 
 **PLEASE NOTE:**
@@ -89,7 +92,7 @@ Ignore Inventory = false
 # Setting type: DurationTypes
 # Default value: Normal
 # Acceptable values: Infinite, Longer, Long, Normal, Short, Shorter
-**Food Duration = Infinite
+**Food Duration = Normal
 
 ## Should eating an item reduce the stack count in your inventory? IgnoreInventory overrides this to false.
 # Setting type: Boolean
@@ -158,6 +161,10 @@ Ignore Inventory = true
 ```
 
 ## Changelog
+- v1.0.1
+	- Fixed a bug where pots where consumed from inventory
+	- Fixed a bug where the keyboard shortcut was spamming other players in multiplayer
+    - Prevent hotkey from triggering while various text boxes are open
 - v1.0.0
 	- Add keyboard shortcut to toggle mod behavior
 	- Adjust Config for better BepInEx Configuration Manager support.

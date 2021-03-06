@@ -60,12 +60,13 @@ namespace Glutton
 
         static void RefreshActiveFood(Player player)
         {
-            player.GetFoods().ForEach(food => {
+            foreach (Player.Food food in player.GetFoods())
+            {
                 Log($"Active food hp//sta: {food.m_name} :: {food.m_health} // {food.m_stamina} :: player hp//sta :: {player.GetHealth()} // {player.GetStamina()}", LogLevel.Debug);
                 if (FoodPercentageBelowThreshhold(food))
                 {
 
-                    Log($"Found {food.m_name} below threshhold", LogLevel.Debug);
+                    Log($"Found {food.m_name} below threshold", LogLevel.Debug);
                     List<Player.Food> foods = new List<Player.Food>();
                     player.GetFoods().ForEach(activeFood =>
                     {
@@ -73,10 +74,9 @@ namespace Glutton
                         {
                             foods.Add(activeFood);
                         }
-                    }
-                        );
+                    });
                     List<ItemDrop.ItemData> foodItems = ConvertFoodToItems(foods);
-                    ItemDrop.ItemData item = 
+                    ItemDrop.ItemData item =
                         GetConfigEatMaximumFoods()
                         ? GetFood(player.GetInventory(), foodItems)
                         : food.m_item;
@@ -90,7 +90,7 @@ namespace Glutton
                         Log($"NullReferenceException caught", LogLevel.Debug);
                     }
                 }
-            });
+            }
         }
 
         static ItemDrop.ItemData GetFood(Inventory inventory, List<ItemDrop.ItemData> foodItems)
@@ -105,8 +105,8 @@ namespace Glutton
         static ItemDrop.ItemData GetFoodFromInventoryExcept(Inventory inventory, List<ItemDrop.ItemData> foodItems)
         {
             List<ItemDrop.ItemData> items = new List<ItemDrop.ItemData>();
+            items = inventory.GetAllFoods();
             Log($"Get best food from inventory except: {items.Count}", LogLevel.Debug);
-            inventory.GetAllItems(ItemDrop.ItemData.ItemType.Consumable, items);
             Log($"Items in inventory: {items.Count}", LogLevel.Debug);
             foreach (ItemDrop.ItemData item in items)
             {
@@ -136,7 +136,7 @@ namespace Glutton
 
         static bool FoodPercentageBelowThreshhold(Player.Food food)
         {
-            
+
             return GetFoodPercentage(food) < GetConfigPercentage();
         }
 
@@ -174,6 +174,24 @@ namespace Glutton
         static bool GetConfigEatMaximumFoods()
         {
             return Glutton.GetConfigEatMaximumFoods();
+        }
+    }
+
+    public static class InventoryExtension
+    {
+        public static List<ItemDrop.ItemData> GetAllFoods(this Inventory inventory)
+        {
+            List<ItemDrop.ItemData> items = new List<ItemDrop.ItemData>();
+            List<ItemDrop.ItemData> foods = new List<ItemDrop.ItemData>();
+            inventory.GetAllItems(ItemDrop.ItemData.ItemType.Consumable, items);
+            foreach (ItemDrop.ItemData item in items)
+            {
+                if (item.m_shared.m_food > 0)
+                {
+                    foods.Add(item);
+                }
+            }
+            return foods;
         }
 
     }
@@ -219,6 +237,14 @@ namespace Glutton
         [HarmonyPatch(typeof(Player), "GetTotalFoodValue")]
         static IEnumerable<CodeInstruction> AdjustFoodBenefits(IEnumerable<CodeInstruction> instructions)
         {
+            //   // hp = 25f;
+            //   IL_0000: ldarg.1
+            //   IL_0001: ldc.r4 25
+            //   IL_0006: stind.r4
+            //   // stamina = 75f;
+            //   _0007: ldarg.2
+            //IL_0008: ldc.r4 75
+            //IL_000d: stind.r4
 
             //   // hp += food.m_health;
             //-- IL_0028: ldfld float32 Player/Food::m_health
@@ -234,6 +260,12 @@ namespace Glutton
             //++ mul
             //   IL_0038: add
             //   IL_0039: stind.r4
+            //instruc FoodBenefitIsUnaltered() ? instructions : new CodeMatcher(instructions)
+            //    .MatchForward(false,
+            //        new CodeMatch(i => i.IsLdarg(1)),
+            //        new CodeMatch(OpCodes.Ldc_R4, 25f),
+            //        new CodeMatch(OpCodes.Stind_R4)
+            //    )
             return FoodBenefitIsUnaltered() ? instructions : new CodeMatcher(instructions)
                 .MatchForward(false,
                     new CodeMatch(i => i.LoadsField(m_health)))

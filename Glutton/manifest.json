@@ -1,8 +1,8 @@
 {
     "name": "Glutton",
-    "version_number": "1.0.0",
+    "version_number": "1.0.1",
     "website_url": "https://github.com/tonsit/valheim-mods",
-    "description": "Automate your food. Modify buff count, duration, intensity and more",
+    "description": "Automate your food. Modify buff count, duration, intensity and more. See config for full options",
     "dependencies": [
         "denikson-BepInExPack_Valheim-5.4.600"
     ]
