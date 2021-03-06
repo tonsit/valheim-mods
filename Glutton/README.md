@@ -6,7 +6,7 @@ With the default settings, Glutton will eat the best food you have available in 
 There are many options available to customize how Glutton behaves.
 
 ## Features
-* Eat the same food when the remaining duration falls under a specified threshhold
+* Eat the same food when the remaining duration falls under a specified threshold
 * Eat until maximum food buffs are applied based on available inventory
 * Toggle auto eating on or off with customizable keyboard shortcut
 * Auto eat best or worst food as priority
@@ -27,7 +27,7 @@ Toggle Automatic Eating: LeftShift + T
 ## Configuration
 Configuration may be done in game using: https://github.com/BepInEx/BepInEx.ConfigurationManager
 
-Make sure your inventory is open before opening ConfigurationManager to show tooltips on options.
+Make sure your inventory is open before opening ConfigurationManager to display tooltips on options when you mouse over them.
 
 You may also edit the config file manually.
 
