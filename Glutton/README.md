@@ -162,7 +162,7 @@ Ignore Inventory = true
 
 ## Changelog
 - v1.0.1
-	- Fixed a bug where pots where consumed from inventory
+	- Fixed a bug where pots were consumed from inventory
 	- Fixed a bug where the keyboard shortcut was spamming other players in multiplayer
     - Prevent hotkey from triggering while various text boxes are open
 - v1.0.0

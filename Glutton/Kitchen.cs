@@ -6,33 +6,14 @@ using UnityEngine;
 
 namespace Glutton
 {
-
-    class ScoredFood : IComparable<ScoredFood>
+    public static class ItemExtension
     {
-        public float score;
-
-        public ItemDrop.ItemData food;
-
-        public ScoredFood(ItemDrop.ItemData food)
+        public static float GetFitnessScore(this ItemDrop.ItemData item)
         {
-            this.food = food;
-            score = GetFitnessScore(food);
-        }
-
-        int IComparable<ScoredFood>.CompareTo(ScoredFood food)
-        {
-            if (GetConfigEatBestFoodsFirst()) {
-                return Comparer<float>.Default.Compare(food.score, score);
-            }
-            return Comparer<float>.Default.Compare(score, food.score);
-        }
-
-        static float GetFitnessScore(ItemDrop.ItemData food)
-        {
-            return food.m_shared.m_food * GetConfigFoodHealthScoreWeight()
-             + food.m_shared.m_foodBurnTime * GetConfigFoodBurnTimeScoreWeight()
-             + food.m_shared.m_foodRegen * GetConfigFoodRegenScoreWeight()
-             + food.m_shared.m_foodStamina * GetConfigFoodStaminaScoreWeight();
+            return item.m_shared.m_food * GetConfigFoodHealthScoreWeight()
+                 + item.m_shared.m_foodBurnTime * GetConfigFoodBurnTimeScoreWeight()
+                 + item.m_shared.m_foodRegen * GetConfigFoodRegenScoreWeight()
+                 + item.m_shared.m_foodStamina * GetConfigFoodStaminaScoreWeight();
         }
 
         static float GetConfigFoodHealthScoreWeight()
@@ -53,6 +34,27 @@ namespace Glutton
         static float GetConfigFoodStaminaScoreWeight()
         {
             return Glutton.GetConfigFoodStaminaScoreWeight();
+        }
+
+    }
+    class ScoredFood : IComparable<ScoredFood>
+    {
+        public float score;
+
+        public ItemDrop.ItemData food;
+
+        public ScoredFood(ItemDrop.ItemData food)
+        {
+            this.food = food;
+            score = food.GetFitnessScore();
+        }
+
+        int IComparable<ScoredFood>.CompareTo(ScoredFood food)
+        {
+            if (GetConfigEatBestFoodsFirst()) {
+                return Comparer<float>.Default.Compare(food.score, score);
+            }
+            return Comparer<float>.Default.Compare(score, food.score);
         }
 
         static bool GetConfigEatBestFoodsFirst()
