@@ -109,7 +109,7 @@ namespace Glutton
             {
                 if (item.m_itemData.m_shared.m_food > 0)
                 {
-                    item.m_itemData.m_dropPrefab = GenerateItemPrefab(item);
+                    item.m_itemData.m_dropPrefab = GenerateItemPrefab(item.m_itemData);
                     Log($"Adding: {item.m_itemData.m_dropPrefab.name}", LogLevel.Debug);
                     sorted.Add(GetScoredFood(item.m_itemData));
                 }
@@ -121,10 +121,17 @@ namespace Glutton
         // The item prefab is added by various methods when items are created in the game.
         // The item's prefab name is used when consuming food.
         // An error will be thrown when prefab is null.
-        static GameObject GenerateItemPrefab(ItemDrop item)
+        public static GameObject GenerateItemPrefab(ItemDrop.ItemData data)
         {
-            string prefabName = item.GetPrefabName(item.gameObject.name);
-            return ObjectDB.instance.GetItemPrefab(prefabName);
+            List<ItemDrop> allItems = ObjectDB.instance.GetAllItems(ItemDrop.ItemData.ItemType.Consumable, "");
+            foreach (ItemDrop item in allItems)
+            {
+                if (item.m_itemData.m_shared.m_name == data.m_shared.m_name)
+                {
+                    return ObjectDB.instance.GetItemPrefab(item.GetPrefabName(item.gameObject.name));
+                }
+            }
+            return null;
         }
 
         static List<ScoredFood> ConvertItemsToScoredFood(List<ItemDrop.ItemData> items)

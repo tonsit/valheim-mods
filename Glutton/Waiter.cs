@@ -13,12 +13,12 @@ namespace Glutton
         public static float m_foodRefreshTimer { get; private set; }
         public static Player.Food[] foods { get; private set; }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(Player), "UpdateFood")]
         static void Begin(Player __instance, float dt)
         {
             m_foodRefreshTimer += dt;
-            if (!(m_foodRefreshTimer > 1f) || AutomaticEatingIsDisabled())
+            if (!(m_foodRefreshTimer >= 1f) || AutomaticEatingIsDisabled())
             {
                 return;
             }
@@ -60,7 +60,8 @@ namespace Glutton
 
         static void RefreshActiveFood(Player player)
         {
-            foreach (Player.Food food in player.GetFoods())
+            List<Player.Food> playerFoods = player.GetFoods();
+            foreach (Player.Food food in playerFoods)
             {
                 Log($"Active food hp//sta: {food.m_name} :: {food.m_health} // {food.m_stamina} :: player hp//sta :: {player.GetHealth()} // {player.GetStamina()}", LogLevel.Debug);
                 if (FoodPercentageBelowThreshhold(food))
@@ -68,7 +69,7 @@ namespace Glutton
 
                     Log($"Found {food.m_name} below threshold", LogLevel.Debug);
                     List<Player.Food> foods = new List<Player.Food>();
-                    player.GetFoods().ForEach(activeFood =>
+                    playerFoods.ForEach(activeFood =>
                     {
                         if (activeFood.m_name != food.m_name)
                         {
@@ -82,6 +83,7 @@ namespace Glutton
                         : food.m_item;
                     try
                     {
+                        Log("Trying to serve more");
                         TryToServeMore(player, item);
                     }
                     catch (NullReferenceException)
@@ -147,6 +149,10 @@ namespace Glutton
 
         static bool TryToServeMore(Player player, ItemDrop.ItemData food)
         {
+            if (food.m_dropPrefab == null)
+            {
+                food.m_dropPrefab = Kitchen.GenerateItemPrefab(food);
+            }
             Log($"Serving {food.m_dropPrefab.name}", LogLevel.Debug);
             return Masticator.TryToEatMore(player, food);
         }
