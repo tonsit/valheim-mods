@@ -1,0 +1,9 @@
+{
+    "name": "ModifyPlayerHealthAndStamina",
+    "version_number": "0.0.1",
+    "website_url": "https://github.com/tonsit/valheim-mods",
+    "description": "Modify the base health points (HP) and Stamina. Set your HP to 1 or 1000",
+    "dependencies": [
+        "denikson-BepInExPack_Valheim-5.4.600"
+    ]
+}
