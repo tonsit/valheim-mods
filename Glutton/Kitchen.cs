@@ -110,7 +110,7 @@ namespace Glutton
                 if (item.m_itemData.m_shared.m_food > 0)
                 {
                     item.m_itemData.m_dropPrefab = GenerateItemPrefab(item.m_itemData);
-                    Log($"Adding: {item.m_itemData.m_dropPrefab.name}", LogLevel.Debug);
+                    Log($"Found in kitchen: {item.m_itemData.m_dropPrefab.name}", LogLevel.Debug, 3);
                     sorted.Add(GetScoredFood(item.m_itemData));
                 }
             }
@@ -172,9 +172,9 @@ namespace Glutton
             return new ScoredFood(food);
         }
 
-        static void Log(object data, LogLevel level = LogLevel.Info)
+        static void Log(object data, LogLevel level = LogLevel.Info, uint verbosity = 1)
         {
-            Glutton.Log(data, level);
+            Glutton.Log(data, level, verbosity);
         }
     }
 }
