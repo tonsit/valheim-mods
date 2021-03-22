@@ -9,7 +9,7 @@ namespace Glutton
         {
             if (HasFoodInInventory(player.GetInventory(), food))
             {
-                Log($"Chewing: {food.m_dropPrefab.name}", LogLevel.Debug);
+                Log($"Chewing: {food.m_dropPrefab.name}", LogLevel.Debug, 2);
                 return Chew(player, food);
             }
             Log("No food in inventory", LogLevel.Debug);
@@ -46,13 +46,13 @@ namespace Glutton
         {
             Log($"Consuming from kitchen {food.m_dropPrefab.name}", LogLevel.Debug);
             player.EatFood(food);
-            Log($"Food Count: {player.GetFoods().Count}", LogLevel.Debug);
+            Log($"Food Count: {player.GetFoods().Count}", LogLevel.Debug, 2);
             return true;
         }
 
-        static void Log(object data, LogLevel level = LogLevel.Info)
+        static void Log(object data, LogLevel level = LogLevel.Info, uint verbosity = 1)
         {
-            Glutton.Log(data, level);
+            Glutton.Log(data, level, verbosity);
         }
 
         static bool GetConfigRemoveInventory()

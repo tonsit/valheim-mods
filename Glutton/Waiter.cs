@@ -53,7 +53,7 @@ namespace Glutton
                 catch (NullReferenceException)
                 {
                     // Player has no best food.
-                    Log($"NullReferenceException caught", LogLevel.Debug);
+                    Log($"NullReferenceException caught", LogLevel.Debug, 2);
                 }
             }
         }
@@ -63,7 +63,7 @@ namespace Glutton
             List<Player.Food> playerFoods = player.GetFoods();
             foreach (Player.Food food in playerFoods)
             {
-                Log($"Active food hp//sta: {food.m_name} :: {food.m_health} // {food.m_stamina} :: player hp//sta :: {player.GetHealth()} // {player.GetStamina()}", LogLevel.Debug);
+                Log($"Active food hp//sta: {food.m_name} :: {food.m_health} // {food.m_stamina} :: player hp//sta :: {player.GetHealth()} // {player.GetStamina()}", LogLevel.Debug, 4);
                 if (FoodPercentageBelowThreshhold(food))
                 {
 
@@ -83,13 +83,13 @@ namespace Glutton
                         : food.m_item;
                     try
                     {
-                        Log("Trying to serve more");
+                        Log($"Trying to serve more: {food.m_name}");
                         TryToServeMore(player, item);
                     }
                     catch (NullReferenceException)
                     {
                         // Player has no best food.
-                        Log($"NullReferenceException caught", LogLevel.Debug);
+                        Log($"NullReferenceException caught", LogLevel.Debug, 2);
                     }
                 }
             }
@@ -108,20 +108,19 @@ namespace Glutton
         {
             List<ItemDrop.ItemData> items = new List<ItemDrop.ItemData>();
             items = inventory.GetAllFoods();
-            Log($"Get best food from inventory except: {items.Count}", LogLevel.Debug);
-            Log($"Items in inventory: {items.Count}", LogLevel.Debug);
+            Log($"Get best food from inventory except: {items.Count}", LogLevel.Debug, 2);
             foreach (ItemDrop.ItemData item in items)
             {
-                Log(item.m_shared.m_name, LogLevel.Debug);
+                Log(item.m_shared.m_name, LogLevel.Debug, 3);
             }
             return Kitchen.GetFoodFromInventoryExcept(items, foodItems);
         }
 
         static ItemDrop.ItemData GetFoodFromKitchenExcept(List<ItemDrop.ItemData> foodItems)
         {
-            Log($"Get best food in game except: {foodItems.Count}", LogLevel.Debug);
+            Log($"Get best food in game except: {foodItems.Count}", LogLevel.Debug, 2);
             foodItems.ForEach(item => {
-                Log($"{item.m_shared.m_name}", LogLevel.Debug);
+                Log($"{item.m_shared.m_name}", LogLevel.Debug, 3);
             });
             return Kitchen.GetFoodFromKitchenExcept(foodItems);
         }
@@ -153,13 +152,13 @@ namespace Glutton
             {
                 food.m_dropPrefab = Kitchen.GenerateItemPrefab(food);
             }
-            Log($"Serving {food.m_dropPrefab.name}", LogLevel.Debug);
+            Log($"Serving {food.m_dropPrefab.name}", LogLevel.Debug, 2);
             return Masticator.TryToEatMore(player, food);
         }
 
-        static void Log(object data, LogLevel level = LogLevel.Info)
+        static void Log(object data, LogLevel level = LogLevel.Info, uint verbosity = 1)
         {
-            Glutton.Log(data, level);
+            Glutton.Log(data, level, verbosity);
         }
 
         static uint GetConfigPercentage()

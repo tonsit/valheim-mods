@@ -88,7 +88,7 @@ Ignore Inventory = false
 # Acceptable value range: From 0 to 100
 **Food Stamina Benefit = 50
 
-## Set the duration for the food timer. This also impacts the rate at which the food benefits decay unless Normalize Food Benefits is enabled. Restart required.
+## Set the duration for the food timer. This also impacts the rate at which the food benefits decay unless Normalize Food Benefits is enabled. Restart required. Shorter: 5%, Short: 50%, Normal: 100%, Long: 200%, Longer: 1000%
 # Setting type: DurationTypes
 # Default value: Normal
 # Acceptable values: Infinite, Longer, Long, Normal, Short, Shorter
@@ -161,13 +161,19 @@ Ignore Inventory = true
 ```
 
 ## Changelog
+- v1.0.3
+    - Update description in food duration to include percentages
+	- Add verbosity level for logging to lower the default output
+- v1.0.2
+	- Fixed a bug where food would not refresh if the buff was already active when logged in
+    - Fixed a bug where food would not refresh if the buff fell off in between update checks
 - v1.0.1
 	- Fixed a bug where pots were consumed from inventory
 	- Fixed a bug where the keyboard shortcut was spamming other players in multiplayer
     - Prevent hotkey from triggering while various text boxes are open
 - v1.0.0
 	- Add keyboard shortcut to toggle mod behavior
-	- Adjust Config for better BepInEx Configuration Manager support.
+	- Adjust Config for better BepInEx Configuration Manager support
 	- Add throttling to UpdateFood patch to improve performance
 	- Add option to adjust active food buff count beyond game limit of 3
 	- Add option to consume best/worst food choice from inventory automatically

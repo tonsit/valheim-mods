@@ -24,6 +24,7 @@ namespace Glutton
         static ConfigEntry<bool> normalizeFoodBenefits;
         static ConfigEntry<uint> foodHealthPercentage;
         static ConfigEntry<uint> foodStaminaPercentage;
+        static ConfigEntry<uint> debugVerbosityLevel;
         static ConfigEntry<DurationTypes> foodDuration;
 
         static ConfigEntry<KeyboardShortcut> automaticEating { get; set; }
@@ -31,7 +32,7 @@ namespace Glutton
 
         const string GUID = "org.tonsit.glutton";
         const string NAME = "Glutton";
-        const string VERSION = "1.0.1";
+        const string VERSION = "1.0.3";
         enum DurationTypes
         {
             Infinite,
@@ -92,7 +93,7 @@ namespace Glutton
                     new ConfigurationManagerAttributes { IsAdvanced = true, Order = 41 }));
 
             foodDuration = Config.Bind(sectionName, "**Food Duration", DurationTypes.Normal,
-                new ConfigDescription($"Set the duration for the food timer. This also impacts the rate at which the food benefits decay unless Normalize Food Benefits is enabled. Restart required.",
+                new ConfigDescription($"Set the duration for the food timer. This also impacts the rate at which the food benefits decay unless Normalize Food Benefits is enabled. Restart required. Shoter: 5%, Short: 50%, Normal: 100%, Long: 200%, Longer: 1000%",
                 null,
                     new ConfigurationManagerAttributes { IsAdvanced = true, Order = 40 }));
 
@@ -130,6 +131,13 @@ namespace Glutton
                     null,
                     new ConfigurationManagerAttributes { Order = 60 }));
 
+            sectionName = "Logging Verbosity";
+
+            debugVerbosityLevel = Config.Bind(sectionName, "Debug Verbosity Level", 0u,
+                new ConfigDescription($"Changes the verbosity of the debug logs for {NAME}",
+                    new AcceptableValueRange<uint>(0, 4),
+                    new ConfigurationManagerAttributes { IsAdvanced = true, Order = 70 }));
+
             logger = Logger;
 
             var harmony = new Harmony(GUID);
@@ -161,9 +169,12 @@ namespace Glutton
                 || (Chat.instance != null && Chat.instance.IsChatDialogWindowVisible()));
         }
 
-        public static void Log(object data, LogLevel level = LogLevel.Info)
+        public static void Log(object data, LogLevel level = LogLevel.Info, uint verbosity = 0)
         {
-            logger.Log(level, data);
+            if (verbosity <= GetConfigDebugVerbosity())
+            {
+                logger.Log(level, data);
+            }
         }
 
         public static uint GetConfigPercentage()
@@ -220,6 +231,11 @@ namespace Glutton
         public static bool GetAutomaticEatingSwitch()
         {
             return automaticEatingSwitch.Value;
+        }
+
+        public static uint GetConfigDebugVerbosity()
+        {
+            return debugVerbosityLevel.Value;
         }
 
         static void ToggleAutomaticEatingSwitch(Player player)
